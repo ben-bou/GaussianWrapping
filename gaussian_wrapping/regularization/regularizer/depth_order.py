@@ -1,7 +1,7 @@
 import torch
 import gc
 from tqdm import tqdm
-from regularization.depth.depth_order import compute_depth_order_loss
+from gaussian_wrapping.regularization.depth.depth_order import compute_depth_order_loss
 
 
 def initialize_depth_order_supervision(
@@ -24,7 +24,7 @@ def initialize_depth_order_supervision(
     print("[INFO] Building depth priors from input RGB images...")
     viewpoint_stack = scene.getTrainCameras().copy()
     try:
-        from regularization.depth.depthanythingv2 import load_depthanything, apply_depthanything
+        from gaussian_wrapping.regularization.depth.depthanythingv2 import load_depthanything, apply_depthanything
     except ImportError:
         print("[ERROR] DepthAnythingV2 not found. Please ensure it's installed.")
         raise

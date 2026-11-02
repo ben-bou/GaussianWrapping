@@ -11,10 +11,10 @@
 
 import torch
 from typing import List
-from scene.cameras import Camera
+from gaussian_wrapping.scene.cameras import Camera
 import numpy as np
-from utils.general_utils import PILtoTorch
-from utils.graphics_utils import fov2focal
+from gaussian_wrapping.utils.general_utils import PILtoTorch
+from gaussian_wrapping.utils.graphics_utils import fov2focal
 
 WARNED = False
 

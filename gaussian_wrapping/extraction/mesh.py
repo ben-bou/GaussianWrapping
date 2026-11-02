@@ -1,16 +1,16 @@
 from typing import Optional, Tuple, Optional, Callable, List, Union
 import torch
 import numpy as np
-from scene.cameras import Camera
-from scene.mesh import Meshes
-from utils.geometry_utils import (
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.mesh import Meshes
+from gaussian_wrapping.utils.geometry_utils import (
     depths_to_points,
     transform_points_view_to_world,
 )
-from utils.tetmesh import marching_tetrahedra
-from utils.tetmesh_gggs import marching_tetrahedra as marching_tetrahedra_with_valid # We borrow this MT function with valids input from GGGS
+from gaussian_wrapping.utils.tetmesh import marching_tetrahedra
+from gaussian_wrapping.utils.tetmesh_gggs import marching_tetrahedra as marching_tetrahedra_with_valid # We borrow this MT function with valids input from GGGS
 # LINK: https://github.com/HKUST-SAIL/Geometry-Grounded-Gaussian-Splatting
-from utils.sh_utils import eval_sh
+from gaussian_wrapping.utils.sh_utils import eval_sh
 from tqdm import tqdm
 
 

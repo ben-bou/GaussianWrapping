@@ -1,18 +1,18 @@
 #adopted from https://github.com/autonomousvision/gaussian-opacity-fields/blob/main/extract_mesh.py
 import numpy as np
 import torch
-from scene import Scene
+from gaussian_wrapping.scene import Scene
 import os
 import random
 from argparse import ArgumentParser, BooleanOptionalAction
-from arguments import ModelParams, PipelineParams, get_combined_args
-from gaussian_renderer import GaussianModel
+from gaussian_wrapping.arguments import ModelParams, PipelineParams, get_combined_args
+from gaussian_wrapping.gaussian_renderer import GaussianModel
 import trimesh
-from scene.mesh import Meshes, MeshRenderer, ScalableMeshRenderer, MeshRasterizer
-from regularization.sdf.depth_fusion import frustum_cull_mesh
+from gaussian_wrapping.scene.mesh import Meshes, MeshRenderer, ScalableMeshRenderer, MeshRasterizer
+from gaussian_wrapping.regularization.sdf.depth_fusion import frustum_cull_mesh
 from tqdm import tqdm
 import gc
-from utils.loss_utils import l1_loss
+from gaussian_wrapping.utils.loss_utils import l1_loss
 from fused_ssim import fused_ssim
 from random import randint
 
@@ -192,10 +192,10 @@ if __name__ == "__main__":
     
     print(f"[ INFO ] Using rasterizer: {args.rasterizer}")
     if args.rasterizer == "radegs":
-        from gaussian_renderer.radegs import render_radegs as render
-        from gaussian_renderer.radegs import integrate_radegs as integrate
+        from gaussian_wrapping.gaussian_renderer.radegs import render_radegs as render
+        from gaussian_wrapping.gaussian_renderer.radegs import integrate_radegs as integrate
     elif args.rasterizer == "ours":
-        from gaussian_renderer.ours import render_ours as render
+        from gaussian_wrapping.gaussian_renderer.ours import render_ours as render
     else:
         raise ValueError(f"Invalid rasterizer: {args.rasterizer}")
         

@@ -8,9 +8,9 @@ from typing import List, Union, Tuple
 import numpy as np
 import torch
 import trimesh
-from scene.cameras import Camera
-from utils.general_utils import build_rotation
-from functional.func_utils import _init_cdf_mask, _render_simp
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.utils.general_utils import build_rotation
+from gaussian_wrapping.functional.func_utils import _init_cdf_mask, _render_simp
 
 
 @torch.no_grad()

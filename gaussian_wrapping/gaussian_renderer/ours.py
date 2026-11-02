@@ -2,8 +2,8 @@ from typing import Optional
 import math
 import torch
 from diff_gaussian_rasterization_ours import GaussianRasterizationSettings, GaussianRasterizer
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
 
 
 def render_ours(
@@ -242,7 +242,7 @@ def sample_depth_and_normal_in_view(
     kernel_size: float=0.0, 
     scaling_modifier: float=1.0
 ):
-    from utils.geometry_utils import sample_depth_normal, depth_to_normal_with_mask
+    from gaussian_wrapping.utils.geometry_utils import sample_depth_normal, depth_to_normal_with_mask
     
     # Get depth and normal maps
     render_pkg = render_ours(

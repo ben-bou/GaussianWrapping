@@ -13,8 +13,8 @@ from typing import Optional
 import torch
 import math
 from diff_gaussian_rasterization import GaussianRasterizationSettings, GaussianRasterizer
-from scene.gaussian_model import GaussianModel
-from utils.sh_utils import eval_sh
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.utils.sh_utils import eval_sh
 
 # Following functions are adopted from RaDe-GS: https://github.com/BaowenZ/RaDe-GS/blob/main/gaussian_renderer/__init__.py
 

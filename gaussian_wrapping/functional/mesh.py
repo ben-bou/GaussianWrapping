@@ -1,11 +1,11 @@
 from typing import Union
 import numpy as np
 import torch
-from scene.cameras import Camera
-from scene.mesh import Meshes
-from utils.tetmesh import marching_tetrahedra
-from utils.geometry_utils import is_in_view_frustum
-from functional.pivots import extract_gaussian_pivots
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.mesh import Meshes
+from gaussian_wrapping.utils.tetmesh import marching_tetrahedra
+from gaussian_wrapping.utils.geometry_utils import is_in_view_frustum
+from gaussian_wrapping.functional.pivots import extract_gaussian_pivots
 
 
 def frustum_cull_mesh(

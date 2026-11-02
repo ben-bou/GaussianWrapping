@@ -13,18 +13,18 @@ from typing import Union, Optional, List
 import torch
 import math
 import numpy as np
-from utils.general_utils import inverse_sigmoid, get_expon_lr_func, build_rotation
+from gaussian_wrapping.utils.general_utils import inverse_sigmoid, get_expon_lr_func, build_rotation
 from torch import nn
 import os
-from utils.system_utils import mkdir_p
+from gaussian_wrapping.utils.system_utils import mkdir_p
 from plyfile import PlyData, PlyElement
-from utils.sh_utils import RGB2SH
+from gaussian_wrapping.utils.sh_utils import RGB2SH
 from simple_knn._C import distCUDA2
-from utils.graphics_utils import BasicPointCloud
-from utils.general_utils import strip_symmetric, build_scaling_rotation
-from scene.appearance_network import AppearanceNetwork
-from utils.sh_utils import SH2RGB
-from utils.geometry_utils import is_in_view_frustum
+from gaussian_wrapping.utils.graphics_utils import BasicPointCloud
+from gaussian_wrapping.utils.general_utils import strip_symmetric, build_scaling_rotation
+from gaussian_wrapping.scene.appearance_network import AppearanceNetwork
+from gaussian_wrapping.utils.sh_utils import SH2RGB
+from gaussian_wrapping.utils.geometry_utils import is_in_view_frustum
 import trimesh
 
 try:

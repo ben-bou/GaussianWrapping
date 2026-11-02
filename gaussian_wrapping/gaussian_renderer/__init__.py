@@ -12,11 +12,11 @@
 import torch
 import math
 import numpy as np
-from scene.gaussian_model import GaussianModel
-from utils.sh_utils import eval_sh
-from utils.geometry_utils import transform_points_world_to_view, get_gaussian_normals_from_view, transform_points_to_pixel_space
-from utils.general_utils import build_scaling_rotation
-from utils.sh_utils import SH2RGB
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.utils.sh_utils import eval_sh
+from gaussian_wrapping.utils.geometry_utils import transform_points_world_to_view, get_gaussian_normals_from_view, transform_points_to_pixel_space
+from gaussian_wrapping.utils.general_utils import build_scaling_rotation
+from gaussian_wrapping.utils.sh_utils import SH2RGB
 from .radegs import render_radegs, integrate_radegs
 try:
     from .sof import render_sof

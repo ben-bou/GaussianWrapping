@@ -10,16 +10,16 @@ import copy
 from tqdm import tqdm
 import json as _json
 from scipy.spatial import ConvexHull
-from arguments import ModelParams, PipelineParams, get_combined_args
+from gaussian_wrapping.arguments import ModelParams, PipelineParams, get_combined_args
 # Scene imports
-from scene.cameras import Camera
-from scene.mesh import Meshes
-from scene import Scene, GaussianModel
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.mesh import Meshes
+from gaussian_wrapping.scene import Scene, GaussianModel
 
 # Utils impots
-from utils.camera_utils import get_cameras_spatial_extent
-from utils.general_utils import safe_state
-from utils.primal_adaptive_meshing_utils import (
+from gaussian_wrapping.utils.camera_utils import get_cameras_spatial_extent
+from gaussian_wrapping.utils.general_utils import safe_state
+from gaussian_wrapping.utils.primal_adaptive_meshing_utils import (
     MeshFromDelaunay,
     GaussianVectorField,
     sample_mesh_proportional_to_camera,
@@ -34,7 +34,7 @@ from eval.TNTUniScanEvals.uniform_sampling_eval import (
 )
 
 # Extraction and processing imports
-from pivot_based_mesh_extraction import (
+from gaussian_wrapping.pivot_based_mesh_extraction import (
     post_process_mesh
 )
 
@@ -170,7 +170,7 @@ def create_global_occupancy_func(args: ArgumentParser, return_details=False):
         assert occupancy_threshold >= 0 and occupancy_threshold <= 1, "Occupancy threshold must be between 0 and 1"
         print(f"[INFO] Iso surface shift of {args.iso_surface_value} corresponds to using occupancy threshold: {occupancy_threshold}")
         args.iso_surface_value = occupancy_threshold # Transformation to make argument coherent to previous code.
-        from gaussian_renderer.ours import integrate_ours as integrate_func
+        from gaussian_wrapping.gaussian_renderer.ours import integrate_ours as integrate_func
         mask_bg_threshold = args.mask_bg_threshold if hasattr(args, 'mask_bg_threshold') else 0.01
         print(f"[INFO] Mask background threshold: {mask_bg_threshold} (mask alpha < this → force empty)")
         global_occupancy_func = lambda query_points: compute_global_occupancy(
@@ -199,7 +199,7 @@ def create_global_occupancy_func(args: ArgumentParser, return_details=False):
         frustum_far = 1e6 * scene_radius / standard_scale
         if apply_frustum_culling:
             print(f"[INFO] Using frustum culling with znear={frustum_near} and zfar={frustum_far}")
-        from gaussian_renderer.sof import (
+        from gaussian_wrapping.gaussian_renderer.sof import (
             default_splat_args, 
             GlobalSortOrder,
             evaluate_vacancy_sof_fast,

@@ -3,13 +3,13 @@ import torch
 import torch.nn as nn
 from torch.nn.functional import normalize as torch_normalize
 from typing import List
-from scene.mesh import Meshes
-from scene.gaussian_model import GaussianModel
-from utils.general_utils import (
+from gaussian_wrapping.scene.mesh import Meshes
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.utils.general_utils import (
     build_scaling_rotation, 
     inverse_sigmoid
 )
-from utils.sh_utils import RGB2SH, eval_sh
+from gaussian_wrapping.utils.sh_utils import RGB2SH, eval_sh
 from blender.blender_utils import (
     get_knn_index,
     find_affine_transform,

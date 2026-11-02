@@ -1,9 +1,9 @@
 from typing import List, Tuple, Union, Callable
 import numpy as np
 import torch
-from scene.cameras import Camera
-from arguments import PipelineParams
-from scene.gaussian_model import GaussianModel
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.arguments import PipelineParams
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
 from tqdm import tqdm
 import gc
 

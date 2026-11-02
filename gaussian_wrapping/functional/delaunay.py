@@ -1,7 +1,7 @@
 from typing import Union
 import torch
 from tetranerf.utils.extension import cpp as delaunay_cpp
-from functional.pivots import extract_gaussian_pivots
+from gaussian_wrapping.functional.pivots import extract_gaussian_pivots
 
 
 @torch.no_grad()

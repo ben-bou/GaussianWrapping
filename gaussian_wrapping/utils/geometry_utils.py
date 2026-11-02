@@ -1,8 +1,8 @@
 import math
 import torch
 from typing import List, Optional, Tuple
-from utils.general_utils import build_rotation
-from scene.cameras import Camera
+from gaussian_wrapping.utils.general_utils import build_rotation
+from gaussian_wrapping.scene.cameras import Camera
 from tqdm import tqdm
 
 

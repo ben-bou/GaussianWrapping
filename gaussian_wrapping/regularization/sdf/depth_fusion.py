@@ -1,27 +1,27 @@
 from typing import List, Callable, Union, Optional, Tuple
 import numpy as np
 import torch
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from scene.mesh import (
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.scene.mesh import (
     Meshes, 
     MeshRasterizer, 
     MeshRenderer, 
     ScalableMeshRenderer, 
     return_delaunay_tets,
 )
-from arguments import PipelineParams
-from utils.camera_utils import get_cameras_spatial_extent
-from utils.geometry_utils import is_in_view_frustum, depth_to_normal
-from utils.tetmesh import marching_tetrahedra
-from utils.general_utils import inverse_sigmoid
-from utils.sh_utils import eval_sh
+from gaussian_wrapping.arguments import PipelineParams
+from gaussian_wrapping.utils.camera_utils import get_cameras_spatial_extent
+from gaussian_wrapping.utils.geometry_utils import is_in_view_frustum, depth_to_normal
+from gaussian_wrapping.utils.tetmesh import marching_tetrahedra
+from gaussian_wrapping.utils.general_utils import inverse_sigmoid
+from gaussian_wrapping.utils.sh_utils import eval_sh
 from tqdm import tqdm
 from random import randint
 import gc
 
 
-# TODO: Import the two following functions from utils.geometry_utils
+# TODO: Import the two following functions from gaussian_wrapping.utils.geometry_utils
 def transform_points_world_to_view(
     points:torch.Tensor,
     cameras:List[Camera],

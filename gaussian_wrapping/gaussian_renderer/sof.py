@@ -12,11 +12,11 @@ from diff_gaussian_rasterization_sof import (
     GlobalSortOrder, 
     DebugVisualizationType,
 )
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from utils.sh_utils import eval_sh
-from utils.graphics_utils import focal2fov, fov2focal
-from utils.geometry_utils import transform_points_world_to_view
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.utils.sh_utils import eval_sh
+from gaussian_wrapping.utils.graphics_utils import focal2fov, fov2focal
+from gaussian_wrapping.utils.geometry_utils import transform_points_world_to_view
 from tqdm import tqdm
 
 

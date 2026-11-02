@@ -1,9 +1,9 @@
 from typing import Tuple, Optional
 from sklearn.neighbors import KDTree
 import torch
-from regularization.sdf.learnable import convert_occupancy_to_sdf, convert_sdf_to_occupancy
-from scene.gaussian_model import GaussianModel
-from scene.mesh import (
+from gaussian_wrapping.regularization.sdf.learnable import convert_occupancy_to_sdf, convert_sdf_to_occupancy
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.scene.mesh import (
     Meshes, 
     return_delaunay_tets, 
     remove_duplicate_edges,
@@ -13,9 +13,9 @@ from scene.mesh import (
     vstars_from_quadrics_least_squares,
     quadrics_score, 
 )
-from utils.tetmesh import marching_tetrahedra
-from utils.general_utils import torch_quantile
-from utils.geometry_utils import flatten_voronoi_features
+from gaussian_wrapping.utils.tetmesh import marching_tetrahedra
+from gaussian_wrapping.utils.general_utils import torch_quantile
+from gaussian_wrapping.utils.geometry_utils import flatten_voronoi_features
 from tqdm import tqdm
 
 

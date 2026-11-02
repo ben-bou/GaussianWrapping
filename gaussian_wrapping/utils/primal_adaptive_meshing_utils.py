@@ -6,8 +6,8 @@ import numpy as np
 from scipy.spatial import Delaunay
 import matplotlib.pyplot as plt
 from torch_geometric.nn import knn
-from utils.geometry_utils import is_in_view_frustum
-from utils.general_utils import (
+from gaussian_wrapping.utils.geometry_utils import is_in_view_frustum
+from gaussian_wrapping.utils.general_utils import (
     build_scaling_rotation, 
     robust_sigma_inv, 
     robust_gaussian_eval_shifted_points

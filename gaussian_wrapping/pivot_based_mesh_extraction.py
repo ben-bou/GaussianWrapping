@@ -3,27 +3,27 @@ from typing import List
 import numpy as np
 import torch
 from functools import partial
-from scene import Scene
+from gaussian_wrapping.scene import Scene
 import os
 import random
 from argparse import ArgumentParser
-from arguments import ModelParams, PipelineParams, get_combined_args
-from gaussian_renderer import GaussianModel
+from gaussian_wrapping.arguments import ModelParams, PipelineParams, get_combined_args
+from gaussian_wrapping.gaussian_renderer import GaussianModel
 import trimesh
-from scene.cameras import Camera
-from scene.mesh import return_delaunay_tets
-from gaussian_renderer.sof import (
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.mesh import return_delaunay_tets
+from gaussian_wrapping.gaussian_renderer.sof import (
     default_splat_args, 
     GlobalSortOrder,
     evaluate_vacancy_sof_fast,
 )
-from gaussian_renderer.ours import integrate_ours
-from regularization.sdf.learnable import refine_intersections_with_binary_search
-from regularization.sdf.depth_fusion import evaluate_mesh_colors_all_vertices
-from extraction.pivots import get_intersecting_pivots_from_normals, get_pivots_by_scores, sample_random_pivots, get_searched_pivots
-from extraction.mesh import extract_mesh, compute_isosurface_value_from_depth
-from utils.camera_utils import get_cameras_spatial_extent
-from utils.geometry_utils import transform_points_world_to_view
+from gaussian_wrapping.gaussian_renderer.ours import integrate_ours
+from gaussian_wrapping.regularization.sdf.learnable import refine_intersections_with_binary_search
+from gaussian_wrapping.regularization.sdf.depth_fusion import evaluate_mesh_colors_all_vertices
+from gaussian_wrapping.extraction.pivots import get_intersecting_pivots_from_normals, get_pivots_by_scores, sample_random_pivots, get_searched_pivots
+from gaussian_wrapping.extraction.mesh import extract_mesh, compute_isosurface_value_from_depth
+from gaussian_wrapping.utils.camera_utils import get_cameras_spatial_extent
+from gaussian_wrapping.utils.geometry_utils import transform_points_world_to_view
 import time
 from tqdm import tqdm
 import gc
@@ -561,10 +561,10 @@ if __name__ == "__main__":
     
     print(f"[ INFO ] Using rasterizer: {args.rasterizer}")
     if args.rasterizer == "radegs":
-        from gaussian_renderer.radegs import render_radegs as render
-        from gaussian_renderer.radegs import integrate_radegs as integrate
+        from gaussian_wrapping.gaussian_renderer.radegs import render_radegs as render
+        from gaussian_wrapping.gaussian_renderer.radegs import integrate_radegs as integrate
     elif args.rasterizer == "ours":
-        from gaussian_renderer.ours import render_ours as render
+        from gaussian_wrapping.gaussian_renderer.ours import render_ours as render
     else:
         raise ValueError(f"Invalid rasterizer: {args.rasterizer}")
     

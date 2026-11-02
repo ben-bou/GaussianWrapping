@@ -6,7 +6,7 @@ import math
 import torch
 from diff_gaussian_rasterization_ms import GaussianRasterizationSettings as MiniSplatting2RasterizationSettings
 from diff_gaussian_rasterization_ms import GaussianRasterizer as MiniSplatting2Rasterizer
-from scene.cameras import Camera
+from gaussian_wrapping.scene.cameras import Camera
 
 
 def _init_cdf_mask(

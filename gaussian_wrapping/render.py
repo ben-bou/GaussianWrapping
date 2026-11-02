@@ -10,15 +10,15 @@
 #
 
 import torch
-from scene import Scene
+from gaussian_wrapping.scene import Scene
 import os
 from tqdm import tqdm
 from os import makedirs
 import torchvision
-from utils.general_utils import safe_state
+from gaussian_wrapping.utils.general_utils import safe_state
 from argparse import ArgumentParser
-from arguments import ModelParams, PipelineParams, get_combined_args
-from gaussian_renderer import GaussianModel
+from gaussian_wrapping.arguments import ModelParams, PipelineParams, get_combined_args
+from gaussian_wrapping.gaussian_renderer import GaussianModel
 
 def render_set(model_path, name, iteration, views, gaussians, pipeline, background):
     render_path = os.path.join(model_path, name, "ours_{}".format(iteration), "renders")
@@ -62,9 +62,9 @@ if __name__ == "__main__":
     
     print(f"[INFO] Using {args.rasterizer} as rasterizer.")
     if args.rasterizer == "radegs":
-        from gaussian_renderer.radegs import render_radegs as render
+        from gaussian_wrapping.gaussian_renderer.radegs import render_radegs as render
     elif args.rasterizer == "ours":
-        from gaussian_renderer.ours import render_ours as render
+        from gaussian_wrapping.gaussian_renderer.ours import render_ours as render
     else:
         raise ValueError(f"Invalid rasterizer: {args.rasterizer}")
 

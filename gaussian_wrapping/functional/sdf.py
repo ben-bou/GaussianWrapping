@@ -3,10 +3,10 @@ from typing import (
 )
 from functools import partial
 import torch
-from scene.cameras import Camera
-from regularization.sdf.depth_fusion import AdaptiveTSDF
-from utils.camera_utils import get_cameras_spatial_extent
-from functional.pivots import extract_gaussian_pivots
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.regularization.sdf.depth_fusion import AdaptiveTSDF
+from gaussian_wrapping.utils.camera_utils import get_cameras_spatial_extent
+from gaussian_wrapping.functional.pivots import extract_gaussian_pivots
 from tqdm import tqdm
 
 

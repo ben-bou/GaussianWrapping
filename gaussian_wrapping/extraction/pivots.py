@@ -1,10 +1,10 @@
 from typing import Optional, Callable, Tuple, List
 import torch
 import trimesh
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from regularization.normal_field import get_gaussian_std_in_direction
-from utils.general_utils import build_rotation
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.regularization.normal_field import get_gaussian_std_in_direction
+from gaussian_wrapping.utils.general_utils import build_rotation
 
 
 def get_intersecting_pivots_from_normals(
@@ -281,7 +281,7 @@ def compute_pivots_scores(
     kernel_size=0.0, 
     scaling_modifier=1.0
 ):
-    from gaussian_renderer.ours import (
+    from gaussian_wrapping.gaussian_renderer.ours import (
         integrate_ours,
         sample_depth_and_normal_in_view,
     )

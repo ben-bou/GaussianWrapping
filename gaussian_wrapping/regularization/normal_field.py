@@ -2,17 +2,17 @@ from typing import Dict, Any, Tuple, Optional, List, Callable
 import numpy as np
 import torch
 from argparse import Namespace
-from arguments import PipelineParams
-from scene import Scene
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from gaussian_renderer import render_simp
-from regularization.sdf.depth_fusion import (
+from gaussian_wrapping.arguments import PipelineParams
+from gaussian_wrapping.scene import Scene
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.gaussian_renderer import render_simp
+from gaussian_wrapping.regularization.sdf.depth_fusion import (
     transform_points_world_to_view, 
     transform_points_to_pixel_space, 
     get_interpolated_value_from_pixel_coordinates,
 )
-from utils.general_utils import build_scaling_rotation
+from gaussian_wrapping.utils.general_utils import build_scaling_rotation
 
 
 def get_gaussian_std_in_direction(

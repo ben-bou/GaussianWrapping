@@ -4,12 +4,12 @@ import torch
 import numpy as np
 import math
 import matplotlib.pyplot as plt
-from utils.geometry_utils import depth_to_normal
-from utils.image_utils import psnr
-from utils.loss_utils import l1_loss, ssim, L1_loss_appearance
+from gaussian_wrapping.utils.geometry_utils import depth_to_normal
+from gaussian_wrapping.utils.image_utils import psnr
+from gaussian_wrapping.utils.loss_utils import l1_loss, ssim, L1_loss_appearance
 from lpipsPyTorch import lpips
-from regularization.regularizer.snapping_points import write_snapping_mask
-from scene.mesh import MeshRenderer, Meshes
+from gaussian_wrapping.regularization.regularizer.snapping_points import write_snapping_mask
+from gaussian_wrapping.scene.mesh import MeshRenderer, Meshes
 try:
     import wandb
 except ImportError:

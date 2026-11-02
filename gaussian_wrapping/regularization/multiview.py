@@ -2,12 +2,12 @@ from typing import List, Dict, Any, Tuple, Optional, Callable
 import numpy as np
 import random
 import torch
-from arguments import PipelineParams, ModelParams, OptimizationParams
-from scene import Scene
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from utils.camera_utils import get_cameras_spatial_extent
-from utils.graphics_utils import fov2focal
+from gaussian_wrapping.arguments import PipelineParams, ModelParams, OptimizationParams
+from gaussian_wrapping.scene import Scene
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.utils.camera_utils import get_cameras_spatial_extent
+from gaussian_wrapping.utils.graphics_utils import fov2focal
 
 
 def get_points_from_depth(

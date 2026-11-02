@@ -1,13 +1,13 @@
 from typing import List, Callable
 import torch
-from arguments import PipelineParams
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from gaussian_renderer import (
+from gaussian_wrapping.arguments import PipelineParams
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.gaussian_renderer import (
     render_depth,
     render_simp,
 )
-from utils.geometry_utils import (
+from gaussian_wrapping.utils.geometry_utils import (
     depth_to_normal, 
     depth_to_normal_with_mask
 )

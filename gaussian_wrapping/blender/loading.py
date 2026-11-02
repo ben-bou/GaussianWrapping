@@ -2,11 +2,11 @@ import json
 import numpy as np
 import torch
 import open3d as o3d
-from scene.gaussian_model import GaussianModel
-from scene.cameras import Camera
-from scene.mesh import Meshes
-from utils.camera_utils import get_cameras_spatial_extent
-from utils.graphics_utils import focal2fov, fov2focal
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.mesh import Meshes
+from gaussian_wrapping.utils.camera_utils import get_cameras_spatial_extent
+from gaussian_wrapping.utils.graphics_utils import focal2fov, fov2focal
 from blender.editing import bind_gaussians_to_mesh
 from blender.blender_utils import transform_points
 

@@ -2,16 +2,16 @@ from typing import List, Dict, Any, Tuple, Optional, Callable
 import numpy as np
 import random
 import torch
-from arguments import PipelineParams, ModelParams, OptimizationParams
-from scene import Scene
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from regularization.multiview_gggs import (
+from gaussian_wrapping.arguments import PipelineParams, ModelParams, OptimizationParams
+from gaussian_wrapping.scene import Scene
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.regularization.multiview_gggs import (
     PatchMatch,
     PatchMatchFast,
     compute_nearest_cameras,
 )
-from utils.camera_utils import get_cameras_spatial_extent
+from gaussian_wrapping.utils.camera_utils import get_cameras_spatial_extent
 
 
 def initialize_multiview_regularization(

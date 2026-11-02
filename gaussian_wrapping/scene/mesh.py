@@ -4,8 +4,8 @@ import torch
 import sys
 sys.setrecursionlimit(10000) # Useful when running with python 3.9
 import nvdiffrast.torch as dr
-from scene.cameras import Camera
-from utils.geometry_utils import transform_points_world_to_view
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.utils.geometry_utils import transform_points_world_to_view
 
 # Try importing cpp extension, handle potential ImportError
 try:

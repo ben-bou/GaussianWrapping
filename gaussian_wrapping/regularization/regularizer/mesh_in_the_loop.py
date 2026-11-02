@@ -1,24 +1,24 @@
 from typing import Dict, Any, List
 import torch
-from arguments import PipelineParams
-from scene import Scene
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from scene.mesh import (
+from gaussian_wrapping.arguments import PipelineParams
+from gaussian_wrapping.scene import Scene
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.scene.mesh import (
     Meshes, 
     MeshRasterizer,
     MeshRenderer,
     ScalableMeshRenderer,
     return_delaunay_tets,
 )
-from extraction.pivots import get_intersecting_pivots_from_normals
-from extraction.mesh import extract_mesh
-from regularization.mesh_in_the_loop import (
+from gaussian_wrapping.extraction.pivots import get_intersecting_pivots_from_normals
+from gaussian_wrapping.extraction.mesh import extract_mesh
+from gaussian_wrapping.regularization.mesh_in_the_loop import (
     compute_occupancy_sof,
     convert_occupancy_to_sdf,
     convert_sdf_to_occupancy,
 )
-from utils.geometry_utils import (
+from gaussian_wrapping.utils.geometry_utils import (
     depth_to_normal, 
     depth_to_normal_with_mask,
     is_in_view_frustum,

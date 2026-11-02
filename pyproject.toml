@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gaussian-wrapping"
+version = "1.0.0"
+description = "GaussianWrapping - 3D Gaussian Splatting with mesh wrapping"
+requires-python = ">=3.9"
+dependencies = [
+    "open3d>=0.19.0",
+    "trimesh>=4.6.8",
+    "scikit-image>=0.24.0",
+    "opencv-python>=4.11.0.86",
+    "plyfile>=1.1",
+    "tqdm>=4.67.1",
+    "wandb",
+    "einops",
+    "scikit-learn",
+    "dacite",
+]
+
+[project.scripts]
+gw-train = "gaussian_wrapping.train:main"
+gw-render = "gaussian_wrapping.render:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["gaussian_wrapping*"]

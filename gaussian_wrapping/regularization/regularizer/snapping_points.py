@@ -1,10 +1,10 @@
 from sklearn.neighbors import KDTree
 import torch
-from utils.geometry_utils import flatten_voronoi_features
-from regularization.sdf.learnable import convert_occupancy_to_sdf, convert_sdf_to_occupancy
-from scene.gaussian_model import GaussianModel
-from utils.tetmesh import marching_tetrahedra
-from scene.mesh import Meshes, get_error_quadrics, quadrics_score, return_delaunay_tets
+from gaussian_wrapping.utils.geometry_utils import flatten_voronoi_features
+from gaussian_wrapping.regularization.sdf.learnable import convert_occupancy_to_sdf, convert_sdf_to_occupancy
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.utils.tetmesh import marching_tetrahedra
+from gaussian_wrapping.scene.mesh import Meshes, get_error_quadrics, quadrics_score, return_delaunay_tets
 from tqdm import tqdm
 
 ### --- Utility functions ---

@@ -1,11 +1,11 @@
 from typing import List, Callable
 import torch
-from arguments import PipelineParams
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from scene.mesh import MeshRenderer, MeshRasterizer, Meshes
-from functional.mesh import frustum_cull_mesh
-from gaussian_renderer import (
+from gaussian_wrapping.arguments import PipelineParams
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.scene.mesh import MeshRenderer, MeshRasterizer, Meshes
+from gaussian_wrapping.functional.mesh import frustum_cull_mesh
+from gaussian_wrapping.gaussian_renderer import (
     render_depth,
     render_simp,
 )

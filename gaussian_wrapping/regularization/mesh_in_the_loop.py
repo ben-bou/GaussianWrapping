@@ -1,16 +1,16 @@
 from typing import List, Optional
 import torch
-from arguments import PipelineParams
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from gaussian_renderer.sof import (
+from gaussian_wrapping.arguments import PipelineParams
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.gaussian_renderer.sof import (
     GlobalSortOrder,
     default_splat_args,
     evaluate_vacancy_sof,
 )
-from regularization.sdf.depth_fusion import evaluate_mesh_colors_all_vertices
-from extraction.mesh import extract_mesh
-from utils.camera_utils import get_cameras_spatial_extent
+from gaussian_wrapping.regularization.sdf.depth_fusion import evaluate_mesh_colors_all_vertices
+from gaussian_wrapping.extraction.mesh import extract_mesh
+from gaussian_wrapping.utils.camera_utils import get_cameras_spatial_extent
 
 
 @torch.no_grad()

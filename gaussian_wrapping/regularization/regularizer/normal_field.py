@@ -2,19 +2,19 @@ from typing import Dict, Any, Tuple, Optional, List, Callable
 import numpy as np
 import torch
 from argparse import Namespace
-from arguments import PipelineParams
-from scene import Scene
-from scene.cameras import Camera
-from scene.gaussian_model import GaussianModel
-from gaussian_renderer import render_depth
-from regularization.normal_field import (
+from gaussian_wrapping.arguments import PipelineParams
+from gaussian_wrapping.scene import Scene
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.gaussian_renderer import render_depth
+from gaussian_wrapping.regularization.normal_field import (
     get_pivots_from_normals,
     get_signed_distance_to_depthmap,
     get_gaussian_std_in_direction,
 )
-from densification.normal_error import compute_normal_error
-from utils.geometry_utils import depth_to_normal, depth_to_normal_with_mask
-from utils.general_utils import build_rotation
+from gaussian_wrapping.densification.normal_error import compute_normal_error
+from gaussian_wrapping.utils.geometry_utils import depth_to_normal, depth_to_normal_with_mask
+from gaussian_wrapping.utils.general_utils import build_rotation
 
 
 def initialize_normal_field(

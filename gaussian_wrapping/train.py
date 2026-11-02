@@ -12,17 +12,17 @@ sys.path.append(os.path.join(SUBMODULES_DIR, 'Depth-Anything-V2'))
 
 import torch
 from random import randint
-from utils.loss_utils import l1_loss, L1_loss_appearance, get_img_grad_weight
+from gaussian_wrapping.utils.loss_utils import l1_loss, L1_loss_appearance, get_img_grad_weight
 from fused_ssim import fused_ssim
 
-from gaussian_renderer import network_gui
-from gaussian_renderer import render_imp
-from scene import Scene, GaussianModel
-from utils.general_utils import safe_state
+from gaussian_wrapping.gaussian_renderer import network_gui
+from gaussian_wrapping.gaussian_renderer import render_imp
+from gaussian_wrapping.scene import Scene, GaussianModel
+from gaussian_wrapping.utils.general_utils import safe_state
 import uuid
 from tqdm import tqdm
 from argparse import ArgumentParser, Namespace, BooleanOptionalAction
-from arguments import ModelParams, PipelineParams, OptimizationParams
+from gaussian_wrapping.arguments import ModelParams, PipelineParams, OptimizationParams
 try:
     import wandb
     WANDB_FOUND = True
@@ -32,24 +32,24 @@ except ImportError:
 import numpy as np
 import time
 
-from utils.geometry_utils import depth_to_normal, depth_to_normal_with_mask
-from utils.log_utils import log_normal_field_training_progress
-from regularization.regularizer.normal_field import (
+from gaussian_wrapping.utils.geometry_utils import depth_to_normal, depth_to_normal_with_mask
+from gaussian_wrapping.utils.log_utils import log_normal_field_training_progress
+from gaussian_wrapping.regularization.regularizer.normal_field import (
     initialize_normal_field,
     compute_normal_field_regularization,
     reset_normal_field_state_at_next_iteration,
     densify_normal_field,
     prune_non_maximal_gaussians,
 )
-from regularization.regularizer.depth_order import (
+from gaussian_wrapping.regularization.regularizer.depth_order import (
     initialize_depth_order_supervision,
     compute_depth_order_regularization,
 )
-from regularization.regularizer.multiview import (
+from gaussian_wrapping.regularization.regularizer.multiview import (
     initialize_multiview_regularization,
     compute_multiview_regularization,
 )
-from regularization.regularizer.mesh_in_the_loop import (
+from gaussian_wrapping.regularization.regularizer.mesh_in_the_loop import (
     initialize_mesh_in_the_loop_regularization,
     compute_mesh_in_the_loop_regularization,
     reset_milo_state_at_next_iteration,
@@ -872,12 +872,12 @@ if __name__ == "__main__":
     # Import rendering function
     print(f"[INFO] Using {args.rasterizer} as rasterizer.")
     if args.rasterizer == "radegs":
-        from gaussian_renderer.radegs import render_radegs as render
-        from gaussian_renderer.radegs import integrate_radegs as integrate
+        from gaussian_wrapping.gaussian_renderer.radegs import render_radegs as render
+        from gaussian_wrapping.gaussian_renderer.radegs import integrate_radegs as integrate
         args.use_abs_grad_for_densification = True
     elif args.rasterizer == "ours":
-        from gaussian_renderer.ours import render_ours as render
-        from gaussian_renderer.ours import integrate_ours as integrate
+        from gaussian_wrapping.gaussian_renderer.ours import render_ours as render
+        from gaussian_wrapping.gaussian_renderer.ours import integrate_ours as integrate
         args.use_abs_grad_for_densification = True
         args.mask_depth_normal = True
         print(f"[INFO] Using Ours rasterizer. Setting mask_depth_normal to True.")
@@ -886,7 +886,7 @@ if __name__ == "__main__":
     
     if args.multiview_rasterizer == "ours":
         print(f"[INFO] Using Ours rasterizer for multiview regularization.")
-        from gaussian_renderer.ours import render_ours as multiview_render
+        from gaussian_wrapping.gaussian_renderer.ours import render_ours as multiview_render
     elif args.multiview_rasterizer is None:
         print(f"[INFO] Using default rasterizer for multiview regularization.")
         multiview_render = None

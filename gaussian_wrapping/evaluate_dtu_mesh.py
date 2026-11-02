@@ -10,9 +10,9 @@ import torch.nn.functional as F
 import trimesh
 from skimage.morphology import binary_dilation, disk
 
-from arguments import ModelParams, PipelineParams, get_combined_args
-from gaussian_renderer import GaussianModel
-from scene import Scene
+from gaussian_wrapping.arguments import ModelParams, PipelineParams, get_combined_args
+from gaussian_wrapping.gaussian_renderer import GaussianModel
+from gaussian_wrapping.scene import Scene
 
 def best_fit_transform(A, B):
     '''

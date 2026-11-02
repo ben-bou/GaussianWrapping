@@ -8,12 +8,12 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 import warp_patch_ncc
-from arguments import PipelineParams
-from gaussian_renderer.ours import sample_depth_with_ours
-from scene import Scene
-from scene.gaussian_model import GaussianModel
-from scene.cameras import Camera
-from utils.camera_utils import get_cameras_spatial_extent
+from gaussian_wrapping.arguments import PipelineParams
+from gaussian_wrapping.gaussian_renderer.ours import sample_depth_with_ours
+from gaussian_wrapping.scene import Scene
+from gaussian_wrapping.scene.gaussian_model import GaussianModel
+from gaussian_wrapping.scene.cameras import Camera
+from gaussian_wrapping.utils.camera_utils import get_cameras_spatial_extent
 
 
 def compute_nearest_cameras(
