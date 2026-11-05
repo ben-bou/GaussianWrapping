@@ -63,7 +63,29 @@ def training(
     debug_from, args, 
     depth_order_config, normal_field_config, multiview_config, milo_config,
     log_interval,
+    render_fn=None,
+    multiview_render_fn=None,
+    enable_gui=False,
 ):
+    """Run the GaussianWrapping optimization loop.
+
+    ``render_fn`` and ``multiview_render_fn`` are passed explicitly so that this
+    function can be called from a library context (see
+    :func:`gaussian_wrapping.api.run_training`) without relying on globals that
+    are only defined in the command line entry point.
+
+    Returns
+    -------
+    (Scene, GaussianModel)
+        The trained scene and Gaussian model.
+    """
+    if render_fn is None:
+        raise ValueError(
+            "training() requires an explicit render_fn. Use "
+            "gaussian_wrapping.train.resolve_rasterizer() or "
+            "gaussian_wrapping.api.run_training()."
+        )
+
     # ---Prepare logger--- 
     run = prepare_output_and_logger(dataset, args)
     
@@ -164,7 +186,7 @@ def training(
         multiview_state = initialize_multiview_regularization(
             scene=scene,
             pipe=pipe,
-            kernel_size=0.0,
+            kernel_size=dataset.kernel_size,
             multiview_config=multiview_config,
         )
     ema_multiview_loss_for_log = 0.0
@@ -218,20 +240,21 @@ def training(
 
     for iteration in range(first_iter, opt.iterations + 1):   
 
-        if network_gui.conn == None:
-            network_gui.try_connect()
-        while network_gui.conn != None:
-            try:
-                net_image_bytes = None
-                custom_cam, do_training, pipe.convert_SHs_python, pipe.compute_cov3D_python, keep_alive, scaling_modifer = network_gui.receive()
-                if custom_cam != None:
-                    net_image = render_imp(custom_cam, gaussians, pipe, background, scaling_modifer)["render"]
-                    net_image_bytes = memoryview((torch.clamp(net_image, min=0, max=1.0) * 255).byte().permute(1, 2, 0).contiguous().cpu().numpy())
-                network_gui.send(net_image_bytes, dataset.source_path)
-                if do_training and ((iteration < int(opt.iterations)) or not keep_alive):
-                    break
-            except Exception as e:
-                network_gui.conn = None
+        if enable_gui:
+            if network_gui.conn == None:
+                network_gui.try_connect()
+            while network_gui.conn != None:
+                try:
+                    net_image_bytes = None
+                    custom_cam, do_training, pipe.convert_SHs_python, pipe.compute_cov3D_python, keep_alive, scaling_modifer = network_gui.receive()
+                    if custom_cam != None:
+                        net_image = render_imp(custom_cam, gaussians, pipe, background, scaling_modifer)["render"]
+                        net_image_bytes = memoryview((torch.clamp(net_image, min=0, max=1.0) * 255).byte().permute(1, 2, 0).contiguous().cpu().numpy())
+                    network_gui.send(net_image_bytes, dataset.source_path)
+                    if do_training and ((iteration < int(opt.iterations)) or not keep_alive):
+                        break
+                except Exception as e:
+                    network_gui.conn = None
 
         iter_start.record()
         gaussians.update_learning_rate(iteration)
@@ -276,7 +299,7 @@ def training(
         
         # If depth-normal regularization or normal field regularization are active,
         # we use the rasterizer compatible with depth and normal rendering.
-        render_pkg = render(
+        render_pkg = render_fn(
             viewpoint_cam, gaussians, pipe, bg,
             require_coord=False, 
             require_depth=render_depth_in_forward_pass,
@@ -385,10 +408,10 @@ def training(
         # Multiview Regularization
         if multiview_kick_on:
             
-            if multiview_render is None:
+            if multiview_render_fn is None:
                 multiview_render_pkg = render_pkg
             else:
-                multiview_render_pkg = multiview_render(
+                multiview_render_pkg = multiview_render_fn(
                     viewpoint_cam, gaussians, pipe, bg,
                     require_coord=False, 
                     require_depth=True,
@@ -401,12 +424,12 @@ def training(
                 viewpoint_cam=viewpoint_cam,
                 viewpoint_idx=viewpoint_idx,
                 gaussians=gaussians,
-                render_func=render,
+                render_func=render_fn,
                 pipe=pipe,
                 background=bg,
                 multiview_config=multiview_config,
                 multiview_state=multiview_state,
-                kernel_size=0.0,
+                kernel_size=dataset.kernel_size,
                 rasterizer=args.rasterizer,
             )
             multiview_loss = multiview_render_pkg["multiview_loss"] * args.multiview_factor
@@ -431,10 +454,10 @@ def training(
                 scene=scene,
                 pipe=pipe,
                 background=bg,
-                kernel_size=0.0,
+                kernel_size=dataset.kernel_size,
                 config=normal_field_config,
                 normal_field_state=normal_field_state,
-                render_func=partial(render, require_coord=False, require_depth=True),
+                render_func=partial(render_fn, require_coord=False, require_depth=True),
                 args=args,
             )
             normal_field_loss = normal_field_render_pkg["normal_field_loss"]
@@ -457,7 +480,7 @@ def training(
                 gaussians=gaussians,
                 pipe=pipe,
                 background=bg,
-                kernel_size=0.0,
+                kernel_size=dataset.kernel_size,
                 milo_config=milo_config,
                 milo_state=milo_state,
                 args=args,
@@ -522,7 +545,7 @@ def training(
                 ema_mesh_depth_loss_for_log,
                 ema_mesh_normal_loss_for_log,
                 ema_occupied_centers_loss_for_log,
-                testing_iterations, saving_iterations, render,
+                testing_iterations, saving_iterations, render_fn,
             )
             
             if iteration % 100 == 0:
@@ -603,10 +626,10 @@ def training(
                         scene=scene, 
                         pipe=pipe, 
                         background=bg, 
-                        kernel_size=0.0, 
+                        kernel_size=dataset.kernel_size, 
                         config=normal_field_config,
                         normal_field_state=normal_field_state, 
-                        render_func=render, 
+                        render_func=render_fn, 
                         args=args,
                         maintain_constant_volume=normal_field_config["maintain_constant_volume"],
                     )
@@ -694,7 +717,7 @@ def training(
     if WANDB_FOUND:
         run.finish()
     
-    return 
+    return scene, gaussians
 
 
 def prepare_output_and_logger(dataset, args):    
@@ -731,7 +754,66 @@ def prepare_output_and_logger(dataset, args):
     return run
 
 
-if __name__ == "__main__":
+def resolve_rasterizer(rasterizer: str, multiview_rasterizer=None):
+    """Return ``(render_fn, integrate_fn, multiview_render_fn)``.
+
+    This is the single place that maps rasterizer names to callables, shared by
+    the command line entry point and :func:`gaussian_wrapping.api.run_training`.
+    """
+    if rasterizer == "radegs":
+        from gaussian_wrapping.gaussian_renderer.radegs import render_radegs as render_fn
+        from gaussian_wrapping.gaussian_renderer.radegs import integrate_radegs as integrate_fn
+    elif rasterizer == "ours":
+        from gaussian_wrapping.gaussian_renderer.ours import render_ours as render_fn
+        from gaussian_wrapping.gaussian_renderer.ours import integrate_ours as integrate_fn
+    else:
+        raise ValueError(f"Invalid rasterizer: {rasterizer}")
+
+    if multiview_rasterizer == "ours":
+        from gaussian_wrapping.gaussian_renderer.ours import render_ours as multiview_render_fn
+    elif multiview_rasterizer is None:
+        multiview_render_fn = None
+    else:
+        raise ValueError(f"Invalid multiview rasterizer: {multiview_rasterizer}")
+
+    return render_fn, integrate_fn, multiview_render_fn
+
+
+def load_regularization_configs(args):
+    """Load the regularization YAML configs referenced by ``args``.
+
+    Returns ``(depth_order_config, normal_field_config, multiview_config, milo_config)``.
+    Disabled regularizers yield ``None``.
+    """
+    def _load(group, name):
+        path = os.path.join(BASE_DIR, "configs", group, f"{name}.yaml")
+        with open(path, "r") as f:
+            return yaml.safe_load(f)
+
+    depth_order_config = None
+    if args.depth_order:
+        depth_order_config = _load("depth_order", args.depth_order_config)
+        print(f"[INFO] Using depth order regularization with config: {args.depth_order_config}")
+
+    normal_field_config = None
+    if args.use_normal_field:
+        normal_field_config = _load("normal_field", args.normal_field_config)
+        print(f"[INFO] Using normal field with config: {args.normal_field_config}")
+
+    multiview_config = None
+    if args.multiview:
+        multiview_config = _load("multiview", args.multiview_config)
+        print(f"[INFO] Using multiview regularization with config: {args.multiview_config}")
+
+    milo_config = None
+    if args.milo:
+        milo_config = _load("mesh_in_the_loop", args.milo_config)
+        print(f"[INFO] Using mesh-in-the-loop regularization with config: {args.milo_config}")
+
+    return depth_order_config, normal_field_config, multiview_config, milo_config
+
+
+def main(argv=None):
     # Set up command line argument parser
     parser = ArgumentParser(description="Training script parameters")
     lp = ModelParams(parser)
@@ -812,7 +894,7 @@ if __name__ == "__main__":
     parser.add_argument("--wandb_entity", type=str, default=None)
     parser.add_argument("--wandb_name", type=str, default=None)
     
-    args = parser.parse_args(sys.argv[1:])
+    args = parser.parse_args(sys.argv[1:] if argv is None else argv)
 
     args.save_iterations.append(args.iterations)
     if not -1 in args.test_iterations:
@@ -825,45 +907,8 @@ if __name__ == "__main__":
         args.port = np.random.randint(5000, 9000)
         print(f"Using random port: {args.port}")
         
-    # Load multiview regularization config
-    if args.multiview:
-        # Get multiview config file
-        multiview_config_file = os.path.join(BASE_DIR, "configs", "multiview", f"{args.multiview_config}.yaml")
-        with open(multiview_config_file, "r") as f:
-            multiview_config = yaml.safe_load(f)
-        print(f"[INFO] Using multiview regularization with config: {args.multiview_config}")
-    else:
-        multiview_config = None
-        
-    # Load mesh-in-the-loop regularization config
-    if args.milo:
-        # Get mesh regularization config file
-        milo_config_file = os.path.join(BASE_DIR, "configs", "mesh_in_the_loop", f"{args.milo_config}.yaml")
-        with open(milo_config_file, "r") as f:
-            milo_config = yaml.safe_load(f)
-        print(f"[INFO] Using mesh-in-the-loop regularization with config: {args.milo_config}")
-    else:
-        milo_config = None
-    
-    # Load depth order regularization config (not used in MILo paper)
-    if args.depth_order:
-        # Get depth order config file
-        depth_order_config_file = os.path.join(BASE_DIR, "configs", "depth_order", f"{args.depth_order_config}.yaml")
-        with open(depth_order_config_file, "r") as f:
-            depth_order_config = yaml.safe_load(f)
-        print(f"[INFO] Using depth order regularization with config: {args.depth_order_config}")
-    else:
-        depth_order_config = None
-        
-    # Load mesh-in-the-loop regularization config
-    if args.use_normal_field:
-        # Get mesh regularization config file
-        normal_field_config_file = os.path.join(BASE_DIR, "configs", "normal_field", f"{args.normal_field_config}.yaml")
-        with open(normal_field_config_file, "r") as f:
-            normal_field_config = yaml.safe_load(f)
-        print(f"[INFO] Using normal field with config: {args.normal_field_config}")
-    else:
-        normal_field_config = None
+    depth_order_config, normal_field_config, multiview_config, milo_config = \
+        load_regularization_configs(args)
     
     # Message for detach_gaussian_rendering
     if args.detach_gaussian_rendering:
@@ -871,27 +916,13 @@ if __name__ == "__main__":
     
     # Import rendering function
     print(f"[INFO] Using {args.rasterizer} as rasterizer.")
-    if args.rasterizer == "radegs":
-        from gaussian_wrapping.gaussian_renderer.radegs import render_radegs as render
-        from gaussian_wrapping.gaussian_renderer.radegs import integrate_radegs as integrate
-        args.use_abs_grad_for_densification = True
-    elif args.rasterizer == "ours":
-        from gaussian_wrapping.gaussian_renderer.ours import render_ours as render
-        from gaussian_wrapping.gaussian_renderer.ours import integrate_ours as integrate
-        args.use_abs_grad_for_densification = True
+    render_fn, _integrate_fn, multiview_render_fn = resolve_rasterizer(
+        args.rasterizer, args.multiview_rasterizer
+    )
+    args.use_abs_grad_for_densification = True
+    if args.rasterizer == "ours":
         args.mask_depth_normal = True
         print(f"[INFO] Using Ours rasterizer. Setting mask_depth_normal to True.")
-    else:
-        raise ValueError(f"Invalid rasterizer: {args.rasterizer}")
-    
-    if args.multiview_rasterizer == "ours":
-        print(f"[INFO] Using Ours rasterizer for multiview regularization.")
-        from gaussian_wrapping.gaussian_renderer.ours import render_ours as multiview_render
-    elif args.multiview_rasterizer is None:
-        print(f"[INFO] Using default rasterizer for multiview regularization.")
-        multiview_render = None
-    else:
-        raise ValueError(f"Invalid multiview rasterizer: {args.multiview_rasterizer}")
         
     # Initialize system state (RNG)
     safe_state(args.quiet)
@@ -911,6 +942,9 @@ if __name__ == "__main__":
         multiview_config,
         milo_config,
         args.log_interval,
+        render_fn=render_fn,
+        multiview_render_fn=multiview_render_fn,
+        enable_gui=True,
     )
 
     torch.cuda.synchronize()
@@ -924,3 +958,7 @@ if __name__ == "__main__":
 
     # All done
     print("\nTraining complete.")
+
+
+if __name__ == "__main__":
+    main()

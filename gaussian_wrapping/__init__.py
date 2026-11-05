@@ -19,5 +19,6 @@ from gaussian_wrapping.gaussian_renderer import (
 from gaussian_wrapping import functional
 from gaussian_wrapping import extraction
 from gaussian_wrapping import api
+from gaussian_wrapping.api import TrainingConfig, TrainingResult, run_training
 
 __version__ = "1.0.0"
