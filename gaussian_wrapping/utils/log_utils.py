@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from gaussian_wrapping.utils.geometry_utils import depth_to_normal
 from gaussian_wrapping.utils.image_utils import psnr
 from gaussian_wrapping.utils.loss_utils import l1_loss, ssim, L1_loss_appearance
-from lpipsPyTorch import lpips
+from gaussian_wrapping.lpipsPyTorch import lpips
 from gaussian_wrapping.regularization.regularizer.snapping_points import write_snapping_mask
 from gaussian_wrapping.scene.mesh import MeshRenderer, Meshes
 try:
@@ -47,7 +47,7 @@ def fix_normal_map(view, normal, normal_in_view_space=True):
 
     Args:
         view (_type_): _description_
-        normal (_type_): 
+        normal (_type_):
 
     Returns:
         _type_: _description_
@@ -63,7 +63,7 @@ def fix_normal_map(view, normal, normal_in_view_space=True):
     grid_x, grid_y = torch.meshgrid(torch.arange(W)+0.5, torch.arange(H)+0.5, indexing='xy')
     points = torch.stack([grid_x, grid_y, torch.ones_like(grid_x)], dim=0).reshape(3, -1).float().cuda()
     rays_d = (intrins_inv @ points).reshape(3, H, W)
-    
+
     if normal_in_view_space:
         normal_view = normal
     else:
@@ -73,13 +73,13 @@ def fix_normal_map(view, normal, normal_in_view_space=True):
         normal_view = normal_view @ view.world_view_transform[:3,:3]
         if normal.shape[0] == 3:
             normal_view = normal_view.permute(2, 0, 1)
-    
+
     if normal_view.shape[0] != 3:
         rays_d = rays_d.permute(1, 2, 0)
         dim_to_sum = -1
     else:
         dim_to_sum = 0
-        
+
     return torch.sign((-rays_d * normal_view).sum(dim=dim_to_sum, keepdim=True)) * normal_view
 
 
@@ -101,7 +101,7 @@ def make_log_figure(
         if (image.ndim == 3) and (image.shape[0] == 1 or image.shape[0] == 3):
             image_to_add = image.permute(1, 2, 0)
         log_images.append(image_to_add.cpu())
-    
+
     n_images = len(log_images)
     if nrows is None and ncols is None:
         raise ValueError("nrows and ncols cannot be None at the same time")
@@ -109,10 +109,10 @@ def make_log_figure(
         nrows = round(np.ceil(float(n_images) / float(ncols)))
     elif ncols is None:
         ncols = round(np.ceil(float(n_images) / float(nrows)))
-    
-    height, width = log_images[0].shape[:2]    
+
+    height, width = log_images[0].shape[:2]
     plt.figure(figsize=(figsize, figsize * height / width * nrows / ncols))
-    
+
     for i, log_image in enumerate(log_images):
         plt.subplot(nrows, ncols, i+1)
         if log_image.shape[-1] == 3:
@@ -128,13 +128,13 @@ def make_log_figure(
             plt.colorbar()
         if titles is not None:
             plt.title(titles[i])
-    
+
     if show_plot:
         plt.show()
     if save_plot and (save_path is not None):
         plt.savefig(save_path)
     plt.close()
-    
+
     if return_log_images:
         log_images_dict = {}
         for i, log_image in enumerate(log_images):
@@ -149,9 +149,9 @@ def training_report(iteration, l1_loss, testing_iterations, scene, renderFunc, r
     # Report test and samples of training set
     if iteration in testing_iterations:
         torch.cuda.empty_cache()
-        validation_configs = ({'name': 'test', 'cameras' : scene.getTestCameras()}, 
+        validation_configs = ({'name': 'test', 'cameras' : scene.getTestCameras()},
                               {'name': 'train', 'cameras' : [scene.getTrainCameras()[idx % len(scene.getTrainCameras())] for idx in range(5, 30, 5)]})
-        # validation_configs = ({'name': 'test', 'cameras' : scene.getTestCameras()},)        
+        # validation_configs = ({'name': 'test', 'cameras' : scene.getTestCameras()},)
 
         for config in validation_configs:
             if config['cameras'] and len(config['cameras']) > 0:
@@ -167,11 +167,11 @@ def training_report(iteration, l1_loss, testing_iterations, scene, renderFunc, r
                     psnr_test += psnr(image, gt_image).mean().double()
 
                     ssims.append(ssim(image, gt_image))
-                    lpipss.append(lpips(image, gt_image, net_type='vgg'))                    
+                    lpipss.append(lpips(image, gt_image, net_type='vgg'))
 
 
                 psnr_test /= len(config['cameras'])
-                l1_test /= len(config['cameras']) 
+                l1_test /= len(config['cameras'])
 
                 ssims_test=torch.tensor(ssims).mean()
                 lpipss_test=torch.tensor(lpipss).mean()
@@ -197,8 +197,8 @@ def log_training_progress(
     # Losses
     loss:torch.Tensor, depth_normal_loss:torch.Tensor, mesh_depth_loss:torch.Tensor,
     mesh_normal_loss:torch.Tensor, occupied_centers_loss:torch.Tensor, occupancy_labels_loss:torch.Tensor,
-    non_zero_sdf_loss:torch.Tensor, angle_defect_loss:torch.Tensor, area_loss:torch.Tensor, 
-    laplacian_smoothing_loss:torch.Tensor, normal_consistency_loss:torch.Tensor, 
+    non_zero_sdf_loss:torch.Tensor, angle_defect_loss:torch.Tensor, area_loss:torch.Tensor,
+    laplacian_smoothing_loss:torch.Tensor, normal_consistency_loss:torch.Tensor,
     qem_loss:torch.Tensor,
     attract_pivots_along_mesh_edges_loss:torch.Tensor,
     depth_prior_loss:torch.Tensor,
@@ -216,7 +216,7 @@ def log_training_progress(
     snapping_mask,
 ):
     WANDB_FOUND = run is not None
-    
+
     # ---Progress bar---
     ema_loss_for_log = 0.4 * loss.item() + 0.6 * ema_loss_for_log
     if reg_kick_on:
@@ -244,7 +244,7 @@ def log_training_progress(
             ema_attract_pivots_along_mesh_edges_loss_for_log = 0.4 * attract_pivots_along_mesh_edges_loss.item() + 0.6 * ema_attract_pivots_along_mesh_edges_loss_for_log
     if depth_order_kick_on:
         ema_depth_order_loss_for_log = 0.4 * depth_prior_loss.item() + 0.6 * ema_depth_order_loss_for_log
-    
+
     if iteration % 10 == 0:
         postfix_dict = {"Loss": f"{ema_loss_for_log:.{7}f}"}
         if reg_kick_on:
@@ -275,37 +275,37 @@ def log_training_progress(
         postfix_dict["N_Gauss"] = f"{gaussians._xyz.shape[0]}"
         progress_bar.set_postfix(postfix_dict)
         progress_bar.update(10)
-        
+
     if iteration == opt.iterations:
         progress_bar.close()
-    
+
     # ---Logging---
     if (log_interval is not None) and (
         (iteration % log_interval == 0) or (mesh_kick_on and iteration == mesh_config["start_iter"])
     ):
         images_to_log, titles_to_log = [], []
-        
+
         if depth_order_kick_on:
             images_to_log.append(viewpoint_cam.original_image.cuda())
             titles_to_log.append(f"GT RGB {viewpoint_idx}")
-            
+
             images_to_log.append(do_supervision_depth)
             titles_to_log.append(f"Supervision Depth {viewpoint_idx}")
-            
+
             images_to_log.append((1. - depth_to_normal(viewpoint_cam, do_supervision_depth)) / 2.)
             titles_to_log.append(f"Supervision Depth to Normal {viewpoint_idx}")
-        
+
         images_to_log.append(render_pkg["render"])
         titles_to_log.append(f"Rendered RGB {viewpoint_idx}")
-        
+
         if reg_kick_on or mesh_kick_on or depth_order_kick_on:
             images_to_log.append(render_pkg["median_depth"])
             titles_to_log.append(f"Rendered Depth {viewpoint_idx}")
-        
+
         if reg_kick_on or mesh_kick_on:
             images_to_log.append((1. - render_pkg["normal"]) / 2.)
             titles_to_log.append(f"Rendered Normals {viewpoint_idx}")
-            
+
         if mesh_kick_on:
             images_to_log.append(torch.zeros_like(render_pkg["render"]))
             titles_to_log.append(f"Mesh RGB {viewpoint_idx}")
@@ -318,18 +318,18 @@ def log_training_progress(
                 )
             )
             titles_to_log.append(f"Mesh Depth {viewpoint_idx}")
-            
+
             images_to_log.append(
                 (1. - fix_normal_map(
-                    viewpoint_cam, 
+                    viewpoint_cam,
                     mesh_render_pkg["normals"].detach(),
                 )) / 2.
             )
             titles_to_log.append(f"Mesh Normals {viewpoint_idx}")
-        
+
         log_images_dict = make_log_figure(
-            images=images_to_log, 
-            titles=titles_to_log, 
+            images=images_to_log,
+            titles=titles_to_log,
             cmap='Spectral',
             ncols=3,
             figsize=30,
@@ -338,7 +338,7 @@ def log_training_progress(
             save_path=os.path.join(args.model_path, f"iter_{iteration}.png"),
             return_log_images=WANDB_FOUND,
         )
-        
+
         if WANDB_FOUND:
             # Log metrics
             wandb_log_dict = {}
@@ -348,7 +348,7 @@ def log_training_progress(
                 except:
                     wandb_log_dict[key] = value
             run.log(wandb_log_dict, step=iteration)
-            
+
             # Log images
             wandb_log_images_dict = {}
             for log_img_name, log_img in log_images_dict.items():
@@ -379,15 +379,15 @@ def log_training_progress(
 
     return (
         postfix_dict,
-        ema_loss_for_log, 
-        ema_depth_normal_loss_for_log, 
-        ema_mesh_depth_loss_for_log, ema_mesh_normal_loss_for_log, 
-        ema_occupied_centers_loss_for_log, ema_non_zero_sdf_loss_for_log, ema_occupancy_labels_loss_for_log, ema_angle_defect_loss_for_log, ema_area_loss_for_log, ema_laplacian_smoothing_loss_for_log, ema_normal_consistency_loss_for_log, ema_qem_loss_for_log, 
+        ema_loss_for_log,
+        ema_depth_normal_loss_for_log,
+        ema_mesh_depth_loss_for_log, ema_mesh_normal_loss_for_log,
+        ema_occupied_centers_loss_for_log, ema_non_zero_sdf_loss_for_log, ema_occupancy_labels_loss_for_log, ema_angle_defect_loss_for_log, ema_area_loss_for_log, ema_laplacian_smoothing_loss_for_log, ema_normal_consistency_loss_for_log, ema_qem_loss_for_log,
         ema_attract_pivots_along_mesh_edges_loss_for_log,
         ema_depth_order_loss_for_log
     )
-    
-    
+
+
 # TODO: Logging function should be made clearer and more modular.
 def log_normal_field_training_progress(
     args, iteration:int, log_interval:int, progress_bar, run,
@@ -398,11 +398,11 @@ def log_normal_field_training_progress(
     # Flags
     reg_kick_on:bool, normal_field_kick_on:bool, depth_order_kick_on:bool, multiview_kick_on:bool, milo_kick_on:bool,
     # Losses
-    loss:torch.Tensor, depth_normal_loss:torch.Tensor, 
+    loss:torch.Tensor, depth_normal_loss:torch.Tensor,
     normal_field_alignment_loss:torch.Tensor,
     front_pivots_visibility_loss:torch.Tensor,
-    back_pivots_occlusion_loss:torch.Tensor, 
-    gaussian_flattening_loss:torch.Tensor, 
+    back_pivots_occlusion_loss:torch.Tensor,
+    gaussian_flattening_loss:torch.Tensor,
     sdf_and_normal_field_consistency_loss:torch.Tensor,
     depth_prior_loss:torch.Tensor,
     multiview_loss:torch.Tensor,
@@ -413,7 +413,7 @@ def log_normal_field_training_progress(
     normal_field_config:Dict[str, Any],
     milo_config:Dict[str, Any],
     # EMA losses for logging
-    postfix_dict:Dict[str, Any], ema_loss_for_log:float, 
+    postfix_dict:Dict[str, Any], ema_loss_for_log:float,
     ema_depth_normal_loss_for_log:float,
     ema_normal_field_alignment_loss_for_log:float,
     ema_front_pivots_visibility_loss_for_log:float,
@@ -429,7 +429,7 @@ def log_normal_field_training_progress(
     testing_iterations:List[int], saving_iterations:List[int], render_imp,
 ):
     WANDB_FOUND = run is not None
-    
+
     # ---Progress bar---
     ema_loss_for_log = 0.4 * loss.item() + 0.6 * ema_loss_for_log
     if reg_kick_on:
@@ -458,7 +458,7 @@ def log_normal_field_training_progress(
             ema_mesh_normal_loss_for_log = 0.4 * mesh_normal_loss.item() + 0.6 * ema_mesh_normal_loss_for_log
         if milo_config["enforce_occupied_centers"]:
             ema_occupied_centers_loss_for_log = 0.4 * occupied_centers_loss.item() + 0.6 * ema_occupied_centers_loss_for_log
-    
+
     if iteration % 10 == 0:
         postfix_dict = {"Loss": f"{ema_loss_for_log:.{7}f}"}
         if reg_kick_on:
@@ -489,44 +489,44 @@ def log_normal_field_training_progress(
         postfix_dict["N_Gauss"] = f"{gaussians._xyz.shape[0]}"
         progress_bar.set_postfix(postfix_dict)
         progress_bar.update(10)
-        
+
     if iteration == opt.iterations:
         progress_bar.close()
-    
+
     # ---Logging---
     if (log_interval is not None) and (
-        (iteration % log_interval == 0) 
+        (iteration % log_interval == 0)
         or (normal_field_kick_on and iteration == normal_field_config["start_iter"])
         or (milo_kick_on and iteration == milo_config["start_iter"])
     ):
         images_to_log, titles_to_log = [], []
-        
+
         if depth_order_kick_on:
             images_to_log.append(viewpoint_cam.original_image.cuda())
             titles_to_log.append(f"GT RGB {viewpoint_idx}")
-            
+
             images_to_log.append(do_supervision_depth)
             titles_to_log.append(f"Supervision Depth {viewpoint_idx}")
-            
+
             images_to_log.append((1. - depth_to_normal(viewpoint_cam, do_supervision_depth)) / 2.)
             titles_to_log.append(f"Supervision Depth to Normal {viewpoint_idx}")
-        
+
         images_to_log.append(render_pkg["render"])
         titles_to_log.append(f"Rendered RGB {viewpoint_idx}")
-        
+
         if reg_kick_on or normal_field_kick_on or depth_order_kick_on:
             images_to_log.append(render_pkg["median_depth"])
             titles_to_log.append(f"Rendered Depth {viewpoint_idx}")
-        
+
         if reg_kick_on or normal_field_kick_on:
             images_to_log.append((1. - render_pkg["normal"]) / 2.)
             titles_to_log.append(f"Rendered Normals {viewpoint_idx}")
-            
+
         if normal_field_kick_on:
             images_to_log.append(
                 (1. - normal_field_render_pkg["render"].detach()) / 2.
             )
-            
+
             titles_to_log.append(f"Rendered Normal Field {viewpoint_idx}")
 
             # images_to_log.append(
@@ -540,12 +540,12 @@ def log_normal_field_training_progress(
                 (1. - normal_field_render_pkg["depth"].detach()) / 2.
             )
             titles_to_log.append(f"NF Depth {viewpoint_idx}")
-            
+
             images_to_log.append(
                 (1. - normal_field_render_pkg["normals"].detach()) / 2.
             )
             titles_to_log.append(f"NF Normals {viewpoint_idx}")
-            
+
         if milo_kick_on:
             if milo_config["use_rgb_loss"]:
                 raise NotImplementedError("RGB loss is not implemented")
@@ -554,15 +554,15 @@ def log_normal_field_training_progress(
             if milo_config["use_depth_loss"]:
                 images_to_log.append(milo_pkg["mesh_depth"])
                 titles_to_log.append(f"Mesh Depth {viewpoint_idx}")
-            if milo_config["use_normal_loss"]:                
+            if milo_config["use_normal_loss"]:
                 images_to_log.append(
                     (1. - fix_normal_map(viewpoint_cam, milo_pkg["mesh_normal"])) / 2.
                 )
                 titles_to_log.append(f"Mesh Normals {viewpoint_idx}")
-        
+
         log_images_dict = make_log_figure(
-            images=images_to_log, 
-            titles=titles_to_log, 
+            images=images_to_log,
+            titles=titles_to_log,
             cmap='Spectral',
             ncols=3,
             figsize=30,
@@ -571,7 +571,7 @@ def log_normal_field_training_progress(
             save_path=os.path.join(args.model_path, f"iter_{iteration}.png"),
             return_log_images=WANDB_FOUND,
         )
-        
+
         if WANDB_FOUND:
             # Log metrics
             wandb_log_dict = {}
@@ -581,7 +581,7 @@ def log_normal_field_training_progress(
                 except:
                     wandb_log_dict[key] = value
             run.log(wandb_log_dict, step=iteration)
-            
+
             # Log images
             wandb_log_images_dict = {}
             for log_img_name, log_img in log_images_dict.items():
@@ -610,8 +610,8 @@ def log_normal_field_training_progress(
 
     return (
         postfix_dict,
-        ema_loss_for_log, 
-        ema_depth_normal_loss_for_log, 
+        ema_loss_for_log,
+        ema_depth_normal_loss_for_log,
         ema_normal_field_alignment_loss_for_log,
         ema_front_pivots_visibility_loss_for_log,
         ema_back_pivots_occlusion_loss_for_log,
