@@ -30,6 +30,7 @@ class GaussianWrappingScene:
         resolution: int = -1,
         eval: bool = False,
         device: str = "cuda",
+        save_init_ply: bool = False,
     ):
         """Initialize a scene from a COLMAP or Blender dataset.
 
@@ -42,6 +43,8 @@ class GaussianWrappingScene:
             resolution: Resolution scale (-1 for native, 0, 1, 2 for 1/2, 1/4, 1/8).
             eval: Whether to split into train/eval sets (default False).
             device: Device to place data on (default "cuda").
+            save_init_ply: Also write the initial point cloud to
+                ``<model_path>/points3D.ply`` (default False).
         """
         self.source_path = os.path.abspath(source_path)
         self.model_path = model_path or os.path.join(self.source_path, "output")
@@ -56,6 +59,7 @@ class GaussianWrappingScene:
             resolution=resolution,
             eval=eval,
             data_device=device,
+            save_init_ply=save_init_ply,
         )
         
         # Create the Gaussian model
@@ -148,7 +152,7 @@ class _SimpleModelParams:
     """Lightweight container matching the ModelParams interface without argparse."""
     
     def __init__(self, source_path, model_path, images, sh_degree, 
-                 white_background, resolution, eval, data_device):
+                 white_background, resolution, eval, data_device, save_init_ply=False):
         self.source_path = source_path
         self.model_path = model_path
         self.images = images
@@ -160,6 +164,7 @@ class _SimpleModelParams:
         self.llff = 8
         self.kernel_size = 0.0
         self.use_unbounded_opacity = False
+        self.save_init_ply = save_init_ply
 
 
 class _SimplePipelineParams:
@@ -214,6 +219,7 @@ class TrainingConfig:
     use_unbounded_opacity: bool = False
     llff: int = 8
     kernel_size: float = 0.0
+    save_init_ply: bool = False
 
     # --- Optimization ----------------------------------------------------
     iterations: int = 30_000
@@ -351,6 +357,7 @@ def _model_params_from_config(config: TrainingConfig) -> SimpleNamespace:
         llff=config.llff,
         kernel_size=config.kernel_size,
         use_unbounded_opacity=config.use_unbounded_opacity,
+        save_init_ply=config.save_init_ply,
     )
 
 

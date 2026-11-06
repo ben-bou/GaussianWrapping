@@ -12,7 +12,7 @@
 import os
 import sys
 from PIL import Image
-from typing import NamedTuple
+from typing import NamedTuple, Optional
 from gaussian_wrapping.scene.colmap_loader import read_extrinsics_text, read_intrinsics_text, qvec2rotmat, \
     read_extrinsics_binary, read_intrinsics_binary, read_points3D_binary, read_points3D_text
 from gaussian_wrapping.utils.graphics_utils import getWorld2View2, focal2fov, fov2focal
@@ -36,11 +36,11 @@ class CameraInfo(NamedTuple):
     height: int
 
 class SceneInfo(NamedTuple):
-    point_cloud: BasicPointCloud
+    point_cloud: Optional[BasicPointCloud]
     train_cameras: list
     test_cameras: list
     nerf_normalization: dict
-    ply_path: str
+    ply_path: Optional[str]
 
 def getNerfppNorm(cam_info):
     def get_center_and_diag(cam_centers):
@@ -129,7 +129,7 @@ def storePly(path, xyz, rgb):
     ply_data = PlyData([vertex_element])
     ply_data.write(path)
 
-def readColmapSceneInfo(path, images, eval, llffhold=8):
+def readColmapSceneInfo(path, images, eval, llffhold=8, ply_output_path=None):
     # NOTE: There is a slight naming difference in the PGSR pre-processing
     sparse_folder_possibilities = ["sparse", "sparse/0/"]
     for sparse_folder in sparse_folder_possibilities:
@@ -158,13 +158,20 @@ def readColmapSceneInfo(path, images, eval, llffhold=8):
 
             nerf_normalization = getNerfppNorm(train_cam_infos)
 
-            ply_path = os.path.join(path, f"{sparse_folder}", "points3D.ply")
             bin_path = os.path.join(path, f"{sparse_folder}", "points3D.bin")
-            txt_path = os.path.join(path, f"{sparse_folder}", "points3D.txt")
 
             xyz, rgb, _ = read_points3D_binary(bin_path)
-            storePly(ply_path, xyz, rgb)
-            pcd = fetchPly(ply_path)
+            pcd = BasicPointCloud(
+                points=xyz.astype(np.float32),
+                colors=rgb / 255.0,
+                normals=np.zeros_like(xyz, dtype=np.float32),
+            )
+
+            ply_path = None
+            if ply_output_path is not None:
+                os.makedirs(os.path.dirname(os.path.abspath(ply_output_path)), exist_ok=True)
+                storePly(ply_output_path, xyz, rgb)
+                ply_path = ply_output_path
 
             scene_info = SceneInfo(point_cloud=pcd,
                                 train_cameras=train_cam_infos,
@@ -221,7 +228,7 @@ def readCamerasFromTransforms(path, transformsfile, white_background, extension=
             
     return cam_infos
 
-def readNerfSyntheticInfo(path, white_background, eval, extension=".png"):
+def readNerfSyntheticInfo(path, white_background, eval, extension=".png", ply_output_path=None):
     print("Reading Training Transforms")
     train_cam_infos = readCamerasFromTransforms(path, "transforms_train.json", white_background, extension)
     print("Reading Test Transforms")
@@ -233,22 +240,33 @@ def readNerfSyntheticInfo(path, white_background, eval, extension=".png"):
 
     nerf_normalization = getNerfppNorm(train_cam_infos)
 
-    ply_path = os.path.join(path, "points3d.ply")
-    if not os.path.exists(ply_path):
+    existing_ply_path = os.path.join(path, "points3d.ply")
+    if os.path.exists(existing_ply_path):
+        try:
+            pcd = fetchPly(existing_ply_path)
+        except Exception:
+            pcd = None
+        ply_path = existing_ply_path
+    else:
         # Since this data set has no colmap data, we start with random points
         num_pts = 100_000
         print(f"Generating random point cloud ({num_pts})...")
-        
+
         # We create random points inside the bounds of the synthetic Blender scenes
         xyz = np.random.random((num_pts, 3)) * 2.6 - 1.3
         shs = np.random.random((num_pts, 3)) / 255.0
-        pcd = BasicPointCloud(points=xyz, colors=SH2RGB(shs), normals=np.zeros((num_pts, 3)))
+        colors = SH2RGB(shs)
+        pcd = BasicPointCloud(
+            points=xyz.astype(np.float32),
+            colors=colors,
+            normals=np.zeros((num_pts, 3), dtype=np.float32),
+        )
 
-        storePly(ply_path, xyz, SH2RGB(shs) * 255)
-    try:
-        pcd = fetchPly(ply_path)
-    except:
-        pcd = None
+        ply_path = None
+        if ply_output_path is not None:
+            os.makedirs(os.path.dirname(os.path.abspath(ply_output_path)), exist_ok=True)
+            storePly(ply_output_path, xyz, colors * 255)
+            ply_path = ply_output_path
 
     scene_info = SceneInfo(point_cloud=pcd,
                            train_cameras=train_cam_infos,

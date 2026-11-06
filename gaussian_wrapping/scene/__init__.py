@@ -12,8 +12,9 @@
 import os
 import random
 import json
+import numpy as np
 from gaussian_wrapping.utils.system_utils import searchForMaxIteration
-from gaussian_wrapping.scene.dataset_readers import sceneLoadTypeCallbacks
+from gaussian_wrapping.scene.dataset_readers import sceneLoadTypeCallbacks, storePly
 from gaussian_wrapping.scene.gaussian_model import GaussianModel
 from gaussian_wrapping.arguments import ModelParams
 from gaussian_wrapping.utils.camera_utils import cameraList_from_camInfos, camera_to_JSON
@@ -40,20 +41,36 @@ class Scene:
         self.train_cameras = {}
         self.test_cameras = {}
 
+        ply_output_path = None
+        if not self.loaded_iter and getattr(args, "save_init_ply", False):
+            ply_output_path = os.path.join(self.model_path, "points3D.ply")
+
         if os.path.exists(os.path.join(args.source_path, "sparse")):
             scene_info = sceneLoadTypeCallbacks["Colmap"](
                 args.source_path, args.images, args.eval,
                 llffhold=getattr(args, "llff", 8),
+                ply_output_path=ply_output_path,
             )
         elif os.path.exists(os.path.join(args.source_path, "transforms_train.json")):
             print("Found transforms_train.json file, assuming Blender data set!")
-            scene_info = sceneLoadTypeCallbacks["Blender"](args.source_path, args.white_background, args.eval)
+            scene_info = sceneLoadTypeCallbacks["Blender"](
+                args.source_path, args.white_background, args.eval,
+                ply_output_path=ply_output_path,
+            )
         else:
             assert False, "Could not recognize scene type!"
 
         if not self.loaded_iter:
-            with open(scene_info.ply_path, 'rb') as src_file, open(os.path.join(self.model_path, "input.ply") , 'wb') as dest_file:
-                dest_file.write(src_file.read())
+            input_ply_path = os.path.join(self.model_path, "input.ply")
+            if scene_info.ply_path is not None:
+                with open(scene_info.ply_path, 'rb') as src_file, open(input_ply_path, 'wb') as dest_file:
+                    dest_file.write(src_file.read())
+            elif scene_info.point_cloud is not None:
+                storePly(
+                    input_ply_path,
+                    np.asarray(scene_info.point_cloud.points),
+                    np.clip(np.asarray(scene_info.point_cloud.colors) * 255, 0, 255).astype(np.uint8),
+                )
             json_cams = []
             camlist = []
             if scene_info.test_cameras:
@@ -83,6 +100,12 @@ class Scene:
                                                            "iteration_" + str(self.loaded_iter),
                                                            "point_cloud.ply"))
         else:
+            if scene_info.point_cloud is None:
+                raise ValueError(
+                    "Scene has no point cloud to initialize Gaussians from. "
+                    "Check that the dataset contains valid COLMAP points3D data "
+                    "or a readable points3d.ply for Blender datasets."
+                )
             self.gaussians.create_from_pcd(scene_info.point_cloud, self.cameras_extent)
 
     def save(self, iteration):

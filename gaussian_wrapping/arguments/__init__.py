@@ -54,6 +54,7 @@ class ModelParams(ParamGroup):
         self._white_background = False
         self.data_device = "cuda"
         self.eval = False
+        self.save_init_ply = False
         # self.use_decoupled_appearance = False
         self.llff = 8
         self.kernel_size = 0.0  # Added
