@@ -220,7 +220,6 @@ learnableearthparser/fast_sampler/_sampler.c
 comparisons/
 gaussian_wrapping/experiments/
 deprecated/
-*.md
 *.
 
 # Ignore symlinks
