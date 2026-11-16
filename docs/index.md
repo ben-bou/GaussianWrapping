@@ -26,6 +26,7 @@ The package version is `1.0.0` (`pyproject.toml`, `gaussian_wrapping.__version__
 | [cli-reference.md](cli-reference.md) | Every CLI flag of every entry point (`gw-train`, `convert`, mesh extraction, evaluation, metrics, …) |
 | [api-reference.md](api-reference.md) | Python API: `TrainingConfig` (all 78 fields), `run_training`, `TrainingResult`, `GaussianWrappingScene` |
 | [training-guide.md](training-guide.md) | What a training run does end to end: losses, densification, regularizer scheduling, outputs, checkpoints, WandB, GUI |
+| [artifacts.md](artifacts.md) | Every file every script writes: trained-model PLY layout, mesh naming, renders, metrics, evaluation and harness artifacts |
 | [regularization-configs.md](regularization-configs.md) | Every YAML config under `gaussian_wrapping/configs/`, key by key, traced to the code that consumes it |
 | [mesh-extraction.md](mesh-extraction.md) | Pivot-based extraction and Primal Adaptive Meshing pipelines, bounding volumes, Blender add-on, post-processing |
 | [evaluation.md](evaluation.md) | Benchmarks (TNT, DTU, MipNeRF360, NeRF Synthetic), rendering and geometric metrics, per-script I/O |

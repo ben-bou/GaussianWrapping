@@ -217,6 +217,9 @@ A completed run leaves in `model_path`:
 The `GW_experiments` harness validates the first five artifacts (plus
 `time.txt`) after every run — see its `docs/utils-reference.md`.
 
+Every file any script can produce, with contents and meaning, is catalogued in
+[artifacts.md](artifacts.md).
+
 ## Recipes
 
 ### Smoke test (minutes)

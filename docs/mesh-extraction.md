@@ -290,5 +290,6 @@ Failure modes that are visible in the code:
 - [Training guide](training-guide.md) — how the model directory is produced.
 - [Regularization configs](regularization-configs.md) — depth-order and other regularization configs.
 - [Evaluation](evaluation.md) — benchmarking the extracted meshes.
+- [Artifacts reference](artifacts.md) — exact filenames and contents of every artifact.
 - [API reference](api-reference.md) — module-level documentation.
 - [Architecture](architecture.md) — how the components fit together.

@@ -248,5 +248,6 @@ python gaussian_wrapping/metrics.py -m <OUTPUT_DIR>
 - [Training guide](training-guide.md) — training runs and the model directory layout.
 - [CLI reference](cli-reference.md) — full flag tables for every script.
 - [Regularization configs](regularization-configs.md) — depth-order and other regularization configs.
+- [Artifacts reference](artifacts.md) — exact filenames and contents of every artifact.
 - [API reference](api-reference.md) — module-level documentation.
 - [Architecture](architecture.md) — how the components fit together.
