@@ -220,6 +220,7 @@ class TrainingConfig:
     llff: int = 8
     kernel_size: float = 0.0
     save_init_ply: bool = False
+    masks: Optional[str] = None
 
     # --- Optimization ----------------------------------------------------
     iterations: int = 30_000
@@ -358,6 +359,7 @@ def _model_params_from_config(config: TrainingConfig) -> SimpleNamespace:
         kernel_size=config.kernel_size,
         use_unbounded_opacity=config.use_unbounded_opacity,
         save_init_ply=config.save_init_ply,
+        masks=config.masks,
     )
 
 

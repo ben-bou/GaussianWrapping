@@ -50,6 +50,7 @@ class Scene:
                 args.source_path, args.images, args.eval,
                 llffhold=getattr(args, "llff", 8),
                 ply_output_path=ply_output_path,
+                masks_folder=getattr(args, "masks", None),
             )
         elif os.path.exists(os.path.join(args.source_path, "transforms_train.json")):
             print("Found transforms_train.json file, assuming Blender data set!")

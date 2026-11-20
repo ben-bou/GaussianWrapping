@@ -59,6 +59,7 @@ class ModelParams(ParamGroup):
         self.llff = 8
         self.kernel_size = 0.0  # Added
         self.use_unbounded_opacity = False
+        self.masks = None
         super().__init__(parser, "Loading Parameters", sentinel)
 
     def extract(self, args):
