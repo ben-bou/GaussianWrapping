@@ -68,6 +68,7 @@ def getNerfppNorm(cam_info):
 
 def readColmapCameras(cam_extrinsics, cam_intrinsics, images_folder, masks_folder=None):
     cam_infos = []
+    n_masks_found = 0
     for idx, key in enumerate(cam_extrinsics):
         sys.stdout.write('\r')
         # the exact output you're looking for:
@@ -105,12 +106,15 @@ def readColmapCameras(cam_extrinsics, cam_intrinsics, images_folder, masks_folde
             mask_path = os.path.join(masks_folder, image_name + ".png")
             if os.path.isfile(mask_path):
                 mask = Image.open(mask_path).convert("L")
+                n_masks_found += 1
 
         cam_info = CameraInfo(uid=uid, R=R, T=T, FovY=FovY, FovX=FovX, image=image,
                               image_path=image_path, image_name=image_name, width=width, height=height,
                               mask=mask)
         cam_infos.append(cam_info)
     sys.stdout.write('\n')
+    if masks_folder is not None:
+        print(f"[INFO] Masks: found {n_masks_found}/{len(cam_extrinsics)} in {masks_folder}")
     return cam_infos
 
 def fetchPly(path):
