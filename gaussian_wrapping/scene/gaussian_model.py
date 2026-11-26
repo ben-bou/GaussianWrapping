@@ -445,19 +445,19 @@ class GaussianModel:
     @property
     def get_smallest_axis(self):
         # Get scaling
-        scaling = self.get_scaling_with_3D_filter  # (N, 3)
-        
-        # Get index of axis with smallest scaling
-        min_axis_idx = torch.argmin(scaling, dim=-1, keepdim=True)  # (N, 1)
+        scaling = self.get_scaling_with_3D_filter  # (N, n_axes)
         
         # Get rotation matrices
         rotation_matrices = build_rotation(self._rotation)  # (N, 3, n_axes)
+
+        # Get index of axis with smallest scaling
+        min_axis_idx = torch.argmin(scaling, dim=-1, keepdim=False).view(-1,1,1)  # (N, 1, 1)
         
         # Get smallest axis as the corresponding column of the rotation matrix
         smallest_axis = torch.gather(
             input=rotation_matrices,  # (N, 3, n_axes)
             dim=-1,
-            index=min_axis_idx.unsqueeze(1).repeat(1, 3, 1),  # (N, 3, 1)
+            index=min_axis_idx.expand(-1, 3, -1),  # (N, 3, 1)
         ).squeeze(-1)  # (N, 3)
         
         return smallest_axis

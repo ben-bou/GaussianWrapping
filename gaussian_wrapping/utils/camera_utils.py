@@ -3,7 +3,7 @@
 # GRAPHDECO research group, https://team.inria.fr/graphdeco
 # All rights reserved.
 #
-# This software is free for non-commercial, research and evaluation use 
+# This software is free for non-commercial, research and evaluation use
 # under the terms of the LICENSE.md file.
 #
 # For inquiries contact  george.drettakis@inria.fr
@@ -24,6 +24,7 @@ def loadCam(args, id, cam_info, resolution_scale):
     if args.resolution in [1, 2, 4, 8]:
         resolution = round(orig_w/(resolution_scale * args.resolution)), round(orig_h/(resolution_scale * args.resolution))
     else:  # should be a type that converts to float
+        assert args.resolution != 0, "resolution parameter can't be zero, the image resolution is divided by this parameter"
         if args.resolution == -1:
             if orig_w > 1600:
                 global WARNED
@@ -39,7 +40,7 @@ def loadCam(args, id, cam_info, resolution_scale):
 
         scale = float(global_down) * float(resolution_scale)
         resolution = (int(orig_w / scale), int(orig_h / scale))
-    
+
     resized_image_rgb = PILtoTorch(cam_info.image, resolution)
     gt_image = resized_image_rgb
 
@@ -48,8 +49,8 @@ def loadCam(args, id, cam_info, resolution_scale):
     if cam_info.mask is not None:
         loaded_mask = PILtoTorch(cam_info.mask, resolution)
 
-    return Camera(colmap_id=cam_info.uid, R=cam_info.R, T=cam_info.T, 
-                  FoVx=cam_info.FovX, FoVy=cam_info.FovY, 
+    return Camera(colmap_id=cam_info.uid, R=cam_info.R, T=cam_info.T,
+                  FoVx=cam_info.FovX, FoVy=cam_info.FovY,
                   image=gt_image, gt_alpha_mask=loaded_mask,
                   image_name=cam_info.image_name, uid=id, data_device=args.data_device)
 
@@ -99,7 +100,7 @@ def get_cameras_spatial_extent(cameras:List[Camera]):
 
 
 def resize_cameras(
-    cameras:List[Camera], 
+    cameras:List[Camera],
     new_res:int,
 ) -> List[Camera]:
     resized_cameras = []
@@ -108,28 +109,28 @@ def resize_cameras(
         old_res = max(height, width)
         new_height = int(round(height * new_res / old_res))
         new_width = int(round(width * new_res / old_res))
-        
+
         # Resize image
         new_image = torch.nn.functional.interpolate(
-            cam.original_image[None], 
-            size=(new_height, new_width), 
-            mode="bicubic", 
+            cam.original_image[None],
+            size=(new_height, new_width),
+            mode="bicubic",
             align_corners=False
         )[0]
-        
+
         # Build new camera
         resized_cam = Camera(
-            colmap_id=cam.colmap_id, 
-            R=cam.R, 
-            T=cam.T, 
-            FoVx=cam.FoVx, 
-            FoVy=cam.FoVy, 
-            image=new_image, 
+            colmap_id=cam.colmap_id,
+            R=cam.R,
+            T=cam.T,
+            FoVx=cam.FoVx,
+            FoVy=cam.FoVy,
+            image=new_image,
             gt_alpha_mask=cam.gt_mask,
-            image_name=cam.image_name, 
+            image_name=cam.image_name,
             uid=cam.uid,
             data_device=cam.data_device
         )
         resized_cameras.append(resized_cam)
-    
+
     return resized_cameras

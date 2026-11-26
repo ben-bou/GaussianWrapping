@@ -134,6 +134,7 @@ def build_rotation(r):
     return R
 
 def build_scaling_rotation(s, r):
+    return build_rotation(r) * s.unsqueeze(-2) # should be equivalent and faster
     L = torch.zeros((s.shape[0], 3, 3), dtype=torch.float, device="cuda")
     R = build_rotation(r)
 
