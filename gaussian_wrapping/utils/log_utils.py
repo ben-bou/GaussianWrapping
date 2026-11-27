@@ -523,27 +523,24 @@ def log_normal_field_training_progress(
             titles_to_log.append(f"Rendered Normals {viewpoint_idx}")
 
         if normal_field_kick_on:
-            images_to_log.append(
-                (1. - normal_field_render_pkg["render"].detach()) / 2.
-            )
+            valid_mask = normal_field_render_pkg.get("valid_mask", None)
 
+            render_nf = normal_field_render_pkg["render"].detach()
+            if valid_mask is not None:
+                render_nf = torch.where(valid_mask, render_nf, torch.zeros_like(render_nf))
+            images_to_log.append((1. - render_nf) / 2.)
             titles_to_log.append(f"Rendered Normal Field {viewpoint_idx}")
 
-            # images_to_log.append(
-            #     torch.where(
-            #         normal_field_render_pkg["depth"].detach() > 0,
-            #         normal_field_render_pkg["depth"].detach(),
-            #         normal_field_render_pkg["depth"].detach().max().item()
-            #     )
-            # )
-            images_to_log.append(
-                (1. - normal_field_render_pkg["depth"].detach()) / 2.
-            )
+            depth_nf = normal_field_render_pkg["depth"].detach()
+            if valid_mask is not None:
+                depth_nf = torch.where(valid_mask, depth_nf, torch.zeros_like(depth_nf))
+            images_to_log.append((1. - depth_nf) / 2.)
             titles_to_log.append(f"NF Depth {viewpoint_idx}")
 
-            images_to_log.append(
-                (1. - normal_field_render_pkg["normals"].detach()) / 2.
-            )
+            normals_nf = normal_field_render_pkg["normals"].detach()
+            if valid_mask is not None:
+                normals_nf = torch.where(valid_mask, normals_nf, torch.zeros_like(normals_nf))
+            images_to_log.append((1. - normals_nf) / 2.)
             titles_to_log.append(f"NF Normals {viewpoint_idx}")
 
         if milo_kick_on:

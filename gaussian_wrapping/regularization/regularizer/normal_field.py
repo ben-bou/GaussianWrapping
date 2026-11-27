@@ -271,6 +271,10 @@ def compute_normal_field_regularization(
         + sdf_and_normal_field_consistency_loss
     )
     
+    # Validity mask for logging: mask out background / invalid depth pixels
+    # so that NaN normals/depth at uncovered pixels do not pollute wandb charts.
+    valid_mask = normal_render_pkg["median_depth"] > 0  # (1, H, W)
+
     # FIXME: Is it a problem to detach the losses here?
     if config["align_with_rendered_expected_depths"]:
         depth_normal_to_log = expected_depth_normal
@@ -290,6 +294,7 @@ def compute_normal_field_regularization(
         # "normals": normal_render_pkg["normal"],
         "depth": depth_normal_to_log,
         "normals": rendered_normal,
+        "valid_mask": valid_mask,
     }
     
     return normal_field_render_pkg
