@@ -40,7 +40,7 @@ class GaussianWrappingScene:
             sh_degree: Maximum spherical harmonics degree (default 3).
             images: Subdirectory name containing images (default "images").
             white_background: Whether to use a white background (default False).
-            resolution: Resolution scale (-1 for native, 0, 1, 2 for 1/2, 1/4, 1/8).
+            resolution: Resolution scale (-1 for native, 1,4,8 for 1/2, 1/4, 1/8).
             eval: Whether to split into train/eval sets (default False).
             device: Device to place data on (default "cuda").
             save_init_ply: Also write the initial point cloud to
