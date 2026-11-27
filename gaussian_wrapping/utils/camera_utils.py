@@ -41,13 +41,25 @@ def loadCam(args, id, cam_info, resolution_scale):
         scale = float(global_down) * float(resolution_scale)
         resolution = (int(orig_w / scale), int(orig_h / scale))
 
-    resized_image_rgb = PILtoTorch(cam_info.image, resolution)
-    gt_image = resized_image_rgb
+    # Split RGBA image into RGB + alpha (restore original behavior:
+    # original_image is always 3-channel RGB, alpha becomes gt_alpha_mask)
+    image_bands = cam_info.image.split()
+    if len(image_bands) > 3:
+        resized_image_rgb = torch.cat([PILtoTorch(im, resolution) for im in image_bands[:3]], dim=0)
+        alpha_mask = PILtoTorch(image_bands[3], resolution)
+    else:
+        resized_image_rgb = PILtoTorch(cam_info.image, resolution)
+        alpha_mask = None
 
-    # Load mask from separate file if provided (PIL Image -> tensor, normalized to 0-1)
+    # A mask loaded from a mask folder takes precedence over the image alpha channel.
+    # If no mask folder is provided, fall back to the image's own alpha channel.
     loaded_mask = None
     if cam_info.mask is not None:
         loaded_mask = PILtoTorch(cam_info.mask, resolution)
+    elif alpha_mask is not None:
+        loaded_mask = alpha_mask
+
+    gt_image = resized_image_rgb
 
     return Camera(colmap_id=cam_info.uid, R=cam_info.R, T=cam_info.T,
                   FoVx=cam_info.FovX, FoVy=cam_info.FovY,

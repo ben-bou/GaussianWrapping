@@ -66,6 +66,15 @@ def getNerfppNorm(cam_info):
 
     return {"translate": translate, "radius": radius}
 
+def _find_mask_file(masks_folder, image_name):
+    """Auto-detect mask file extension for the given image base name."""
+    for ext in [".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff"]:
+        candidate = os.path.join(masks_folder, image_name + ext)
+        if os.path.isfile(candidate):
+            return candidate
+    return None
+
+
 def readColmapCameras(cam_extrinsics, cam_intrinsics, images_folder, masks_folder=None):
     cam_infos = []
     n_masks_found = 0
@@ -100,11 +109,11 @@ def readColmapCameras(cam_extrinsics, cam_intrinsics, images_folder, masks_folde
         image_name = Path(image_path).stem
         image = Image.open(image_path)
 
-        # Load mask if masks_folder is provided
+        # Load mask if masks_folder is provided (auto-detect file extension)
         mask = None
         if masks_folder is not None:
-            mask_path = os.path.join(masks_folder, image_name + ".png")
-            if os.path.isfile(mask_path):
+            mask_path = _find_mask_file(masks_folder, image_name)
+            if mask_path is not None:
                 mask = Image.open(mask_path).convert("L")
                 n_masks_found += 1
 
